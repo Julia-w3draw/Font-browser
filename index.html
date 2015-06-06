@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+	
+<html>
+	<head></head>
+	<body>
+		<div id="_main"></div>
+	</body>
+	<script>
+
+		//returns file content
+		function _geturl(url){
+			var retu="";       
+			xmlhttp=new XMLHttpRequest();			
+			xmlhttp.open("GET",url,false);
+			xmlhttp.send();
+			///sanity:
+			if (xmlhttp.status!=200){ // status ok
+			  _error(" nFile not found : " +url)    
+			}
+			///:sanity
+			this.retu=xmlhttp.responseText;
+			this.retu=xmlhttp.response;
+			return this.retu;
+		}
+		
+		//returns the selected elements
+		function _select_fom_array(source,select_arr){
+			var retu=[]			
+			for(var s=0;s<select_arr.length;s++){
+				for(var f=0; f<source.length;f++){					
+					if(source[f].indexOf(select_arr[s],-(source[f].length-select_arr[s].length))!=-1){
+						retu.push(source[f])
+					}
+				}
+			}
+			return retu
+		}
+		
+		var _main=document.getElementById('_main')
+		var dir_path='FONTS/'
+		//get the string with the directory content		
+		var fonts_str=_geturl('action.php?font_dir='+dir_path)
+		//get an array with all fonts files name
+		var fonts_arr=fonts_str.split(',')
+		//get the files with the extensions: ttf, otf
+		var extentions=['.ttf','.TTF','.otf','.OTF']
+		var fonts_list=_select_fom_array(fonts_arr,extentions)
+		
+		var text='\
+		<br>\
+		~@#$%^&*()_+{}:"|\>\<\>?-=[];\'\\,.\/ <br>\
+		1234567890 qwertyuiopasdfghjklzxcvbnm QWERTYUIOPASDFGHJKLZXCVBNM <br><br>\
+		Aenean tellus justo, sodales a elit eget, commodo facilisis augue. Vivamus a tempor lacus. Cras et faucibus ante. Cras hendrerit efficitur nulla. Nam et convallis metus, vitae tempor diam. Nulla volutpat euismod scelerisque. Phasellus semper euismod posuere.'
+		
+		//generate valid font-family name
+		var font_family=[]
+		for(var c=0;c<fonts_list.length;c++){
+			font_family[c]='font-'+fonts_list[c].replace(/[\s\.]/g, '')
+		}
+		//create style @font-face		
+		var newStyle = document.createElement('style');
+		var font_face=''		
+		for(var c=0;c<fonts_list.length;c++){
+			font_face+="@font-face {font-family:"+font_family[c]+";src: url("+(dir_path+fonts_arr[c]).replace(" ","\\ ")+");}\x0A"
+		}
+		
+		//add new style
+		newStyle.innerHTML=font_face		
+		document.head.appendChild(newStyle);
+			
+		//create elements with different fonts
+		for(var c=0;c<fonts_list.length;c++){
+			var new_div=document.createElement('div')
+			new_div.style.width='95%'
+			new_div.style.borderRadius='5px'
+			new_div.style.background='rgba(0,0,0,0.2)'
+			new_div.style.fontSize='1.1em'
+			new_div.style.fontFamily=font_family[c]
+			new_div.innerHTML=fonts_list[c]+'<br>'+text
+			new_div.style.margin='1% 0 0 0'
+			new_div.style.padding='1%'
+			_main.appendChild(new_div)					
+		}
+	</script>
+</html>
